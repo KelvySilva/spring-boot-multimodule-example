@@ -16,6 +16,5 @@ public class HMSApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(HMSApplication.class, args);
-
     }
 }

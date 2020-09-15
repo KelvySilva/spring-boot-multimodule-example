@@ -22,6 +22,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -54,11 +55,11 @@ public class HSMApplicationTest {
 
     @Before
     public void setUp() {
+        mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
         this.repository.saveAll(Stream.of(
                 new Doctor(101L,"John","Cardiac"),
                 new Doctor(102L,"Peter","Eye")
         ).collect(Collectors.toList()));
-        mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
     }
 
     @Test
@@ -73,7 +74,7 @@ public class HSMApplicationTest {
         String valueAsString = mapper.writeValueAsString(doctor);
         MediaType MEDIA_TYPE_JSON_UTF8 = new MediaType("application", "json", Charset.forName("UTF-8"));
 
-        MockHttpServletRequestBuilder post = post("/v1/doctor");
+        MockHttpServletRequestBuilder post = post("/v1/admin/doctor");
         post.content(valueAsString);
         post.accept(MEDIA_TYPE_JSON_UTF8);
         post.contentType(MEDIA_TYPE_JSON_UTF8);
@@ -94,7 +95,7 @@ public class HSMApplicationTest {
     public void listAllDoctorsShouldBeReturnStatusCode200OK() throws  Exception{
 
         MediaType MEDIA_TYPE_JSON_UTF8 = new MediaType("application", "json", Charset.forName("UTF-8"));
-        MockHttpServletRequestBuilder get = get("/v1/doctor/list");
+        MockHttpServletRequestBuilder get = get("/v1/protected/doctors");
         get.accept(MEDIA_TYPE_JSON_UTF8);
         get.contentType(MEDIA_TYPE_JSON_UTF8);
 
@@ -104,7 +105,6 @@ public class HSMApplicationTest {
         String resultContentAsString = result.getResponse().getContentAsString();
 
         Doctor[] doctors = mapper.readValue(resultContentAsString, Doctor[].class);
-        System.out.println(doctors[0]);
         assertEquals(HttpStatus.OK.value(),result.getResponse().getStatus());
         assertEquals("John",doctors[0].getName());
    }
@@ -115,7 +115,7 @@ public class HSMApplicationTest {
 
         MediaType MEDIA_TYPE_JSON_UTF8 = new MediaType("application", "json", Charset.forName("UTF-8"));
         Long id = 101L;
-        MockHttpServletRequestBuilder get = get("/v1/doctor").param("id", "101");
+        MockHttpServletRequestBuilder get = get("/v1/protected/doctor/{id}", 1);
         get.accept(MEDIA_TYPE_JSON_UTF8);
         get.contentType(MEDIA_TYPE_JSON_UTF8);
 
@@ -126,7 +126,6 @@ public class HSMApplicationTest {
         String resultContentAsString = result.getResponse().getContentAsString();
 
         Doctor doctor = mapper.readValue(resultContentAsString, Doctor.class);
-        System.out.println(doctor);
         assertEquals(HttpStatus.OK.value(),result.getResponse().getStatus());
         assertEquals("John",doctor.getName());
     }

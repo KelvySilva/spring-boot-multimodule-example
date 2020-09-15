@@ -17,17 +17,17 @@ public class DoctorController {
         this.service = service;
     }
 
-    @GetMapping(path = "/list")
+    @GetMapping(path = "/protected/doctors")
     public ResponseEntity listAll() {
         return ResponseEntity.ok(this.service.listAll());
     }
 
-    @GetMapping(path = "/{id}")
+    @GetMapping(path = "/protected/doctor/{id}")
     public ResponseEntity findOne(@PathVariable Long id) {
         return ResponseEntity.ok(this.service.findOne(id));
     }
 
-    @PostMapping
+    @PostMapping(path = "/admin/doctor")
     public ResponseEntity saveOne(@RequestBody Doctor doctor) {
         return ResponseEntity.ok(this.service.saveOne(doctor));
     }
